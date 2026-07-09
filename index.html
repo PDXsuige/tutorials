@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>教程</title>
+<style>
+/* ============ Glassmorphism Design System ============ */
+:root {
+  --bg-top: #87CEEB;
+  --bg-mid: #B0D4F1;
+  --bg-bottom: #D4E8F7;
+  --glass: rgba(255,255,255,0.45);
+  --glass-strong: rgba(255,255,255,0.65);
+  --glass-card: rgba(255,255,255,0.35);
+  --glass-border: rgba(255,255,255,0.5);
+  --glass-border-strong: rgba(255,255,255,0.7);
+  --glass-shadow: 0 8px 32px rgba(31,38,135,0.10);
+  --blue: #007AFF;
+  --blue-strong: #0055CC;
+  --red: #FF3B30;
+  --green: #34C759;
+  --orange: #FF9500;
+  --text: #1C1C1E;
+  --text2: #6E6E73;
+  --text3: #AEAEB2;
+  --radius: 20px;
+  --radius-sm: 14px;
+  --radius-xs: 10px;
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+  --nav-height: 48px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow:hidden; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  /* Sky gradient background */
+  background: linear-gradient(
+    180deg,
+    #87CEEB 0%,
+    #A8D8F0 20%,
+    #C5E4F5 45%,
+    #DEEEF9 70%,
+    #F0F6FB 100%
+  );
+  background-attachment: fixed;
+}
+
+/* Decorative blurred circles in background */
+body::before {
+  content: '';
+  position: fixed;
+  top: -80px;
+  right: -60px;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: 100px;
+  left: -80px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(180,210,255,0.35) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============ App Shell ============ */
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+
+/* ============ Navigation Bar (Glass) ============ */
+.nav-bar {
+  background: var(--glass-strong);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--glass-border);
+  height: var(--nav-height);
+  flex-shrink: 0;
+  margin: 0;
+}
+.nav-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  text-align: center;
+  letter-spacing: -0.2px;
+}
+.nav-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  background: var(--glass-strong);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.nav-btn:active { background: rgba(255,255,255,0.9); transform: scale(0.95); }
+.nav-btn svg { width: 20px; height: 20px; stroke: var(--blue); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ============ Content Area ============ */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 16px 16px;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+.content::-webkit-scrollbar { display: none; }
+
+/* ============ Large Title ============ */
+.page-title {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  padding: 20px 4px 8px;
+  color: var(--text);
+  line-height: 1.1;
+  text-shadow: 0 1px 4px rgba(255,255,255,0.5);
+}
+.page-subtitle {
+  font-size: 15px;
+  color: var(--text2);
+  margin-bottom: 20px;
+  line-height: 1.4;
+  padding-left: 4px;
+}
+
+/* ============ Category Grid ============ */
+.cat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding-bottom: 16px;
+}
+.cat-card {
+  background: var(--glass-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+  min-height: 130px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.cat-card:active {
+  transform: scale(0.96);
+  background: var(--glass-strong);
+  box-shadow: 0 4px 20px rgba(31,38,135,0.15);
+}
+.cat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.cat-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+.cat-count {
+  font-size: 13px;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+/* ============ Tutorial List ============ */
+.tutorial-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 16px;
+}
+.tutorial-item {
+  background: var(--glass-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: var(--glass-shadow);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.tutorial-item:active { transform: scale(0.98); background: var(--glass-strong); }
+.tutorial-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  background: rgba(255,255,255,0.4);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: var(--text2);
+}
+.tutorial-thumb img { width:100%; height:100%; border-radius:var(--radius-sm); object-fit:cover; }
+.tutorial-info { flex:1; min-width:0; }
+.tutorial-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.2px;
+}
+.tutorial-info p {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.tutorial-steps {
+  font-size: 12px;
+  color: var(--blue);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* ============ Step Progress ============ */
+.step-progress {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin: 16px 0;
+}
+.step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.4);
+  border: 1px solid var(--glass-border);
+  transition: all 0.3s ease;
+}
+.step-dot.active {
+  width: 28px;
+  background: var(--blue);
+  border-color: var(--blue);
+}
+.step-dot.done { background: var(--blue); opacity: 0.4; border-color: var(--blue); }
+
+/* ============ Step Card ============ */
+.step-card {
+  background: var(--glass-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border-strong);
+  border-radius: var(--radius);
+  padding: 28px 20px;
+  box-shadow: var(--glass-shadow);
+  margin-bottom: 16px;
+}
+.step-card .step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.step-card h3 {
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  letter-spacing: -0.1px;
+}
+.step-card .step-content {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+.step-card .step-image {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  margin-top: 16px;
+  background: rgba(255,255,255,0.3);
+  object-fit: cover;
+  max-height: 300px;
+}
+
+.step-nav button:disabled:active { transform: none; }
+
+/* ============ Comic / Long-image Detail ============ */
+.comic-panel {
+  margin-bottom: 28px;
+}
+.comic-image {
+  width: 100%;
+  display: block;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.3);
+}
+.comic-caption {
+  padding: 14px 4px 0;
+}
+.comic-caption h3 {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  letter-spacing: -0.2px;
+}
+.comic-text {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
+/* ============ Detail Article (Scrollable) ============ */
+.detail-article {
+  padding: 0 16px 40px;
+}
+.detail-cover {
+  width: 100%;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  object-fit: cover;
+  max-height: 260px;
+  background: rgba(255,255,255,0.3);
+}
+.detail-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.3px;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.detail-desc {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* ============ Tab Bar (Glass) ============ */
+.tab-bar {
+  display: flex;
+  background: var(--glass-strong);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-top: 1px solid var(--glass-border);
+  padding: 4px 0 calc(4px + var(--safe-bottom));
+  flex-shrink: 0;
+  z-index: 100;
+  position: relative;
+}
+.tab-bar::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%, rgba(255,255,255,0.6) 20%, rgba(255,255,255,0.6) 80%, transparent 100%
+  );
+}
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 0;
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: color 0.2s;
+  color: var(--text2);
+}
+.tab-item svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tab-item span { font-size: 10px; font-weight: 500; }
+.tab-item.active { color: var(--blue); }
+
+/* ============ Empty State ============ */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+.empty-state .empty-icon {
+  font-size: 56px;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+.empty-state h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.empty-state p {
+  font-size: 15px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+/* ============ Admin Login ============ */
+.admin-login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 20px;
+  min-height: 400px;
+}
+.admin-login input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid var(--glass-border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 17px;
+  font-family: inherit;
+  background: var(--glass-card);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.admin-login input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(0,122,255,0.15);
+}
+
+/* ============ Admin Toolbar ============ */
+.admin-toolbar {
+  display: flex;
+  gap: 10px;
+  padding: 12px 0;
+  flex-wrap: wrap;
+}
+.admin-toolbar button {
+  padding: 10px 18px;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.admin-toolbar button:active { transform: scale(0.95); }
+.btn-add {
+  background: var(--blue);
+  color: white;
+  border-color: var(--blue);
+  box-shadow: 0 4px 15px rgba(0,122,255,0.25);
+}
+.btn-logout {
+  background: var(--glass-card);
+  color: var(--text);
+}
+
+/* ============ Admin Tutorial Item ============ */
+.admin-tutorial-item {
+  background: var(--glass-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--glass-shadow);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.admin-tutorial-item .info { flex:1; min-width:0; }
+.admin-tutorial-item .info h4 { font-size: 15px; font-weight: 600; margin-bottom: 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.admin-tutorial-item .info span { font-size: 12px; color: var(--text2); }
+.admin-actions { display:flex; gap:6px; flex-shrink:0; }
+.admin-actions button {
+  width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--glass-border);
+  font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.admin-actions button:active { transform: scale(0.9); }
+.btn-edit-admin { background: rgba(0,122,255,0.15); color: var(--blue); }
+.btn-del-admin { background: rgba(255,59,48,0.12); color: var(--red); }
+
+/* ============ Editor Form ============ */
+.editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+.editor-form label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: -12px;
+}
+.editor-form input, .editor-form textarea, .editor-form select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--glass-border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  font-family: inherit;
+  background: var(--glass-card);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.editor-form textarea { min-height: 80px; resize: vertical; }
+.editor-form input:focus, .editor-form textarea:focus, .editor-form select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(0,122,255,0.15);
+}
+
+.step-editor {
+  background: var(--glass-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--glass-shadow);
+  position: relative;
+}
+.step-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.step-editor-header span { font-weight: 600; font-size: 15px; }
+.btn-remove-step {
+  width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--glass-border);
+  background: rgba(255,59,48,0.12); color: var(--red); font-size: 16px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.btn-add-step {
+  padding: 14px;
+  border: 2px dashed var(--glass-border-strong);
+  border-radius: var(--radius);
+  background: var(--glass-card);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--blue);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.img-upload-row {
+  display: flex; gap: 8px; align-items: center;
+}
+.img-upload-label {
+  font-size: 13px; color: var(--text2); flex-shrink: 0;
+}
+.btn-upload {
+  display: inline-block; padding: 8px 14px; border-radius: 8px;
+  background: rgba(0,122,255,0.12); color: var(--blue);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  white-space: nowrap; transition: background 0.2s;
+  border: 1px solid rgba(0,122,255,0.2);
+}
+.btn-upload:hover { background: rgba(0,122,255,0.2); }
+.btn-upload input[type="file"] { display: none; }
+.btn-add-step:active { background: rgba(0,122,255,0.1); }
+.btn-save {
+  padding: 16px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  letter-spacing: -0.2px;
+  box-shadow: 0 4px 15px rgba(0,122,255,0.3);
+}
+.btn-save:active { transform: scale(0.98); opacity: 0.85; }
+
+/* ============ Alert / Modal ============ */
+.alert-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  animation: fadeIn 0.2s ease;
+}
+.alert-box {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border-strong);
+  border-radius: 20px;
+  padding: 24px 20px;
+  width: calc(100% - 80px);
+  max-width: 320px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  animation: scaleIn 0.25s ease;
+}
+.alert-box h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+.alert-box p { font-size: 14px; color: var(--text2); margin-bottom: 20px; line-height:1.4; }
+.alert-buttons { display: flex; flex-direction: column; gap: 8px; }
+.alert-buttons button {
+  padding: 13px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.alert-buttons button:active { opacity: 0.7; }
+.alert-btn-primary { background: var(--red); color: white; }
+.alert-btn-cancel {
+  background: rgba(0,0,0,0.06);
+  color: var(--text);
+  font-weight: 400;
+}
+
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes scaleIn { from { transform:scale(0.9); opacity:0; } to { transform:scale(1); opacity:1; } }
+
+.hidden { display: none !important; }
+
+@media (min-width: 481px) {
+  #app {
+    border-left: 1px solid rgba(255,255,255,0.3);
+    border-right: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 0 60px rgba(0,0,0,0.08);
+    background: transparent;
+  }
+  body {
+    background: linear-gradient(180deg,
+      #5B9BD5 0%,
+      #7DB9DE 15%,
+      #A8D8F0 35%,
+      #C5E4F5 55%,
+      #DEEEF9 75%,
+      #F0F6FB 100%
+    );
+  }
+}
+
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Content area -->
+  <div class="content" id="main-content"></div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-item active" data-tab="client" onclick="switchTab('client')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+      <span>教程</span>
+    </button>
+  </div>
+</div>
+
+<!-- Alert overlay (hidden by default) -->
+<div class="alert-overlay hidden" id="alert-overlay">
+  <div class="alert-box">
+    <h3 id="alert-title"></h3>
+    <p id="alert-msg"></p>
+    <div class="alert-buttons" id="alert-buttons"></div>
+  </div>
+</div>
+
+<script>
+/* ============ Data Layer ============ */
+const STORAGE_KEY = 'tutorial_app_data';
+const ADMIN_PASSWORD = '000000';
+
+const DEFAULT_CATEGORIES = [
+  { id: 'c1', name: '手机技巧', icon: '📱', color: '#E8F5FB' },
+  { id: 'c2', name: '电脑操作', icon: '💻', color: '#EBF5EC' },
+  { id: 'c3', name: '摄影修图', icon: '📷', color: '#FDF2E7' },
+  { id: 'c4', name: '办公软件', icon: '📊', color: '#EEE6FB' },
+];
+
+const DEFAULT_TUTORIALS = [
+  {
+    id: 't1', categoryId: 'c1', title: 'iPhone 截屏的 3 种方式',
+    coverImage: '', description: '学会截屏、长截屏和录屏，再也不求人。',
+    steps: [
+      { title: '普通截屏', content: '同时按下「侧边按钮」和「音量加」键，屏幕会闪烁一下，截屏就完成了。\n\n截屏图片会自动保存到「照片」App 中。', image: '' },
+      { title: '长截屏（Safari）', content: '先用普通方式截屏，然后立即点击左下角的缩略图。\n\n在编辑界面顶部选择「整页」，可以保存为 PDF 或发送给朋友。', image: '' },
+      { title: '屏幕录制', content: '打开「设置」→「控制中心」→ 添加「屏幕录制」。\n\n从右上角下滑打开控制中心，点击录制按钮（圆圈），3 秒倒计时后开始录制。再次点击停止。', image: '' },
+    ]
+  },
+  {
+    id: 't2', categoryId: 'c1', title: '一键清理通知，告别红点',
+    coverImage: '', description: '几分钟搞定消息轰炸，清爽每一天',
+    steps: [
+      { title: '关闭不重要的通知', content: '打开「设置」→「通知」，逐个点击不需要推送的 App，关闭「允许通知」开关。\n\n建议保留通讯、日历等必要的通知。', image: '' },
+      { title: '设置定时摘要', content: '在「设置」→「通知」→「定时推送摘要」中，选择你希望接收摘要的 App 和时间。\n\n系统会在指定时间一次性推送摘要，而不是实时打断你。', image: '' },
+    ]
+  },
+  {
+    id: 't3', categoryId: 'c2', title: '电脑文件整理术',
+    coverImage: '', description: '告别桌面满满的图标，高效管理你的文件',
+    steps: [
+      { title: '建立文件夹体系', content: '不要把所有文件堆在桌面。按「项目名」或「时间」建立文件夹。\n\n例如：工作 / 个人 / 学习 三大主文件夹，每个下面再细分。', image: '' },
+      { title: '命名规范', content: '使用统一命名格式：「日期_项目名_版本号」\n\n例如：20260709_教程APP_v1.0\n\n这样一眼就能识别文件内容，搜索也方便。', image: '' },
+      { title: '定期清理', content: '每个月花 10 分钟清理：\n1. 删除不再需要的文件\n2. 将完成的文件归档到「归档」文件夹\n3. 清空回收站', image: '' },
+    ]
+  },
+  {
+    id: 't4', categoryId: 'c3', title: '手机拍出好照片',
+    coverImage: '', description: '不用单反，手机也能拍大片',
+    steps: [
+      { title: '三分法构图', content: '打开相机设置中的「网格」。\n\n将被拍摄主体放在网格线的交叉点上，画面会更有层次感。', image: '' },
+      { title: '光线是关键', content: '尽量使用自然光。逆光时开启 HDR，暗光时稳住手机或使用夜景模式。\n\n黄金拍摄时间：日出后 1 小时和日落前 1 小时。', image: '' },
+    ]
+  },
+  {
+    id: 't5', categoryId: 'c4', title: 'Excel 数据透视表入门',
+    coverImage: '', description: '10 分钟学会数据透视表，工作效率翻倍',
+    steps: [
+      { title: '准备数据', content: '确保数据是规范的表格格式：\n- 第一行为列标题\n- 没有合并单元格\n- 没有空行', image: '' },
+      { title: '创建透视表', content: '选中数据区域 → 点击「插入」→「数据透视表」→ 选择放置位置 → 确定。\n\n在右侧窗格中拖拽字段到行、列、值区域即可完成分析。', image: '' },
+      { title: '常用技巧', content: '1. 右键值字段 →「值字段设置」可切换求和/计数/平均值\n2. 点击透视表 →「设计」标签可快速套用样式\n3. 使用「切片器」可以快速筛选数据', image: '' },
+    ]
+  },
+  {
+    id: 't6', categoryId: 'c4', title: 'PPT 排版三原则',
+    coverImage: '', description: '让你的幻灯片告别杂乱，变得专业好看',
+    steps: [
+      { title: '对齐', content: '选中多个元素 →「格式」→「对齐」→ 选择对齐方式。\n\n所有元素对齐后，页面看起来干净整洁、层次分明。', image: '' },
+      { title: '留白', content: '不要塞满内容！每页只放 1-2 个核心观点。\n\n适当的空白区域让观众更容易聚焦重点，专业感瞬间提升。', image: '' },
+      { title: '统一字体', content: '全篇最多使用 2 种字体。标题用粗体大号，正文用常规小号。\n\n推荐组合：思源黑体（标题）+ 思源宋体（正文）', image: '' },
+    ]
+  },
+];
+
+function getData() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  try {
+    var baked = localStorage.getItem(STORAGE_KEY + '_baked');
+    if (baked) return JSON.parse(baked);
+  } catch(e) {}
+  return { categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)), tutorials: JSON.parse(JSON.stringify(DEFAULT_TUTORIALS)) };
+}
+function saveData(data) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    return true;
+  } catch(e) {
+    showAlert('保存失败', '存储空间不足！图片 Base64 太大，请减少图片或缩小尺寸。\n当前数据大小：' + (JSON.stringify(data).length / 1024 / 1024).toFixed(2) + ' MB', [
+      {text:'确定',cls:'alert-btn-cancel',action:function(){}}
+    ]);
+    return false;
+  }
+}
+function resetData() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+/* ============ App State ============ */
+let appState = {
+  tab: 'client',
+  page: 'home',
+  currentCategoryId: null,
+  currentTutorialId: null,
+  currentStepIndex: 0,
+
+
+};
+
+const contentEl = document.getElementById('main-content');
+const alertOverlay = document.getElementById('alert-overlay');
+
+/* ============ Tab Switching ============ */
+function switchTab(tab) {
+  window._es = null;
+  appState.tab = 'client';
+  appState.page = 'home';
+  render();
+}
+
+/* ============ Navigation ============ */
+function goHome() { window._es = null; appState.page = 'home'; appState.currentCategoryId = null; render(); }
+function goCategory(catId) { appState.page = 'category'; appState.currentCategoryId = catId; render(); }
+function goTutorial(tutId) {
+  appState.page = 'detail';
+  appState.currentTutorialId = tutId;
+  appState.currentStepIndex = 0;
+  render();
+}
+
+
+
+function getCurrentTutorial() {
+  const data = getData();
+  return data.tutorials.find(t => t.id === appState.currentTutorialId);
+}
+
+/* ============ Alert ============ */
+var _alertCallbacks = {};
+var _alertNextId = 0;
+function showAlert(title, msg, buttons) {
+  document.getElementById('alert-title').textContent = title;
+  document.getElementById('alert-msg').textContent = msg;
+  var btnsEl = document.getElementById('alert-buttons');
+  var html = '';
+  for (var i = 0; i < buttons.length; i++) {
+    var id = 'ab' + (++_alertNextId);
+    _alertCallbacks[id] = buttons[i].action;
+    html += '<button class="' + (buttons[i].cls||'') + '" onclick="var fn=_alertCallbacks[\'' + id + '\'];if(fn)fn();dismissAlert();">' + buttons[i].text + '</button>';
+  }
+  btnsEl.innerHTML = html;
+  alertOverlay.classList.remove('hidden');
+}
+function dismissAlert() {
+  alertOverlay.classList.add('hidden');
+  _alertCallbacks = {};
+  _alertNextId = 0;
+}
+
+/* ============ Render ============ */
+function render() {
+  var data = getData();
+  var page = appState.page;
+  renderClient(data, page);
+  contentEl.scrollTop = 0;
+}
+
+function renderClient(data, page) {
+  if (page === 'home') renderHome(data);
+  else if (page === 'category') renderCategory(data);
+  else if (page === 'detail') renderDetail(data);
+}
+
+
+
+/* ============ Client: Home ============ */
+function renderHome(data) {
+  const cats = data.categories;
+  const tuts = data.tutorials;
+  const catCounts = {};
+  tuts.forEach(t => { catCounts[t.categoryId] = (catCounts[t.categoryId] || 0) + 1; });
+
+  let catsHtml = cats.map(c => `
+    <div class="cat-card" onclick="goCategory('${c.id}')">
+      <div>
+        <div class="cat-icon" style="background:${c.color}">${c.icon}</div>
+        <div class="cat-name">${c.name}</div>
+        <div class="cat-count">${catCounts[c.id]||0} 篇教程</div>
+      </div>
+    </div>
+  `).join('');
+
+  if (cats.length === 0) {
+    catsHtml = `<div class="empty-state"><div class="empty-icon">📚</div><h3>还没有分类</h3><p>请联系管理员添加教程分类</p></div>`;
+  }
+
+  contentEl.innerHTML = `
+    <div class="page-title">发现教程</div>
+    <div class="page-subtitle">手把手带你学会新技能</div>
+    <div class="cat-grid">${catsHtml}</div>
+  `;
+}
+
+/* ============ Client: Category ============ */
+function renderCategory(data) {
+  const cat = data.categories.find(c => c.id === appState.currentCategoryId);
+  if (!cat) { goHome(); return; }
+  const tuts = data.tutorials.filter(t => t.categoryId === cat.id);
+
+  let listHtml = tuts.map(t => `
+    <div class="tutorial-item" onclick="goTutorial('${t.id}')">
+      <div class="tutorial-info">
+        <h3>${t.title}</h3>
+        <p>${t.description}</p>
+        <div class="tutorial-steps">${t.steps.length} 个步骤</div>
+      </div>
+    </div>
+  `).join('');
+
+  if (tuts.length === 0) {
+    listHtml = `<div class="empty-state"><div class="empty-icon">📖</div><h3>这个分类下还没有教程</h3><p>请联系管理员来添加教程</p></div>`;
+  }
+
+  contentEl.innerHTML = `
+    <div class="nav-bar">
+      <button class="nav-btn" onclick="goHome()">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="nav-title" style="text-align:left;padding-left:4px;">${cat.icon} ${cat.name}</span>
+      <div style="width:44px;"></div>
+    </div>
+    <div class="tutorial-list">${listHtml}</div>
+  `;
+}
+
+/* ============ Client: Detail ============ */
+/* ============ Client: Detail (Comic / Long-image style) ============ */
+function renderDetail(data) {
+  const tut = getCurrentTutorial();
+  if (!tut) { goHome(); return; }
+
+  // Build all steps as a comic-style scrollable article
+  var stepsHtml = '';
+  for (var i = 0; i < tut.steps.length; i++) {
+    var s = tut.steps[i];
+    var imgHtml = s.image ? '<img class="comic-image" src="' + s.image + '" alt="' + s.title + '" loading="lazy">' : '';
+    var textHtml = '';
+    if (s.title.trim() || s.content.trim()) {
+      textHtml = '<div class="comic-caption">';
+      if (s.title.trim()) textHtml += '<h3>' + s.title + '</h3>';
+      if (s.content.trim()) textHtml += '<div class="comic-text">' + s.content + '</div>';
+      textHtml += '</div>';
+    }
+    stepsHtml += '<div class="comic-panel">';
+    stepsHtml += imgHtml;
+    stepsHtml += textHtml;
+    stepsHtml += '</div>';
+  }
+
+  var coverHtml = '';
+  if (tut.coverImage) {
+    coverHtml = '<img class="detail-cover" src="' + tut.coverImage + '" alt="' + tut.title + '">';
+  }
+
+  contentEl.innerHTML =
+    '<div class="nav-bar">' +
+      '<button class="nav-btn" onclick="goCategory(\'' + tut.categoryId + '\')">' +
+        '<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>' +
+      '</button>' +
+      '<span class="nav-title">' + tut.title + '</span>' +
+      '<div style="width:44px;"></div>' +
+    '</div>' +
+    '<div class="detail-article">' +
+      coverHtml +
+      '<h2 class="detail-title">' + tut.title + '</h2>' +
+      '<p class="detail-desc">' + tut.description + '</p>' +
+      stepsHtml +
+    '</div>';
+}
+
+/* ============ Init ============ */
+function init() {
+  fetch('data.json')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      localStorage.setItem(STORAGE_KEY + '_baked', JSON.stringify(data));
+      if (!localStorage.getItem(STORAGE_KEY)) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }
+    })
+    .catch(function() {})
+    .finally(function() { render(); });
+}
+init();
+</script>
+</body>
+</html>

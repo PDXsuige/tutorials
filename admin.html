@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>教程管理后台</title>
+<style>
+/* ============ Glassmorphism Design System ============ */
+:root {
+  --bg-top: #87CEEB;
+  --bg-mid: #B0D4F1;
+  --bg-bottom: #D4E8F7;
+  --glass: rgba(255,255,255,0.45);
+  --glass-strong: rgba(255,255,255,0.65);
+  --glass-card: rgba(255,255,255,0.35);
+  --glass-border: rgba(255,255,255,0.5);
+  --glass-border-strong: rgba(255,255,255,0.7);
+  --glass-shadow: 0 8px 32px rgba(31,38,135,0.10);
+  --blue: #007AFF;
+  --blue-strong: #0055CC;
+  --red: #FF3B30;
+  --green: #34C759;
+  --orange: #FF9500;
+  --text: #1C1C1E;
+  --text2: #6E6E73;
+  --text3: #AEAEB2;
+  --radius: 20px;
+  --radius-sm: 14px;
+  --radius-xs: 10px;
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+  --nav-height: 48px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow:hidden; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  /* Sky gradient background */
+  background: linear-gradient(
+    180deg,
+    #87CEEB 0%,
+    #A8D8F0 20%,
+    #C5E4F5 45%,
+    #DEEEF9 70%,
+    #F0F6FB 100%
+  );
+  background-attachment: fixed;
+}
+
+/* Decorative blurred circles in background */
+body::before {
+  content: '';
+  position: fixed;
+  top: -80px;
+  right: -60px;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: 100px;
+  left: -80px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(180,210,255,0.35) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============ App Shell ============ */
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+
+/* ============ Navigation Bar (Glass) ============ */
+.nav-bar {
+  background: var(--glass-strong);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--glass-border);
+  height: var(--nav-height);
+  flex-shrink: 0;
+  margin: 0;
+}
+.nav-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  text-align: center;
+  letter-spacing: -0.2px;
+}
+.nav-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  background: var(--glass-strong);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.nav-btn:active { background: rgba(255,255,255,0.9); transform: scale(0.95); }
+.nav-btn svg { width: 20px; height: 20px; stroke: var(--blue); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ============ Content Area ============ */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 16px 16px;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+.content::-webkit-scrollbar { display: none; }
+
+/* ============ Large Title ============ */
+.page-title {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  padding: 20px 4px 8px;
+  color: var(--text);
+  line-height: 1.1;
+  text-shadow: 0 1px 4px rgba(255,255,255,0.5);
+}
+.page-subtitle {
+  font-size: 15px;
+  color: var(--text2);
+  margin-bottom: 20px;
+  line-height: 1.4;
+  padding-left: 4px;
+}
+
+/* ============ Category Grid ============ */
+.cat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding-bottom: 16px;
+}
+.cat-card {
+  background: var(--glass-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+  min-height: 130px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.cat-card:active {
+  transform: scale(0.96);
+  background: var(--glass-strong);
+  box-shadow: 0 4px 20px rgba(31,38,135,0.15);
+}
+.cat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.cat-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+.cat-count {
+  font-size: 13px;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+/* ============ Tutorial List ============ */
+.tutorial-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 16px;
+}
+.tutorial-item {
+  background: var(--glass-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+  box-shadow: var(--glass-shadow);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.tutorial-item:active { transform: scale(0.98); background: var(--glass-strong); }
+.tutorial-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  background: rgba(255,255,255,0.4);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: var(--text2);
+}
+.tutorial-thumb img { width:100%; height:100%; border-radius:var(--radius-sm); object-fit:cover; }
+.tutorial-info { flex:1; min-width:0; }
+.tutorial-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.2px;
+}
+.tutorial-info p {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.tutorial-steps {
+  font-size: 12px;
+  color: var(--blue);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* ============ Step Progress ============ */
+.step-progress {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin: 16px 0;
+}
+.step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.4);
+  border: 1px solid var(--glass-border);
+  transition: all 0.3s ease;
+}
+.step-dot.active {
+  width: 28px;
+  background: var(--blue);
+  border-color: var(--blue);
+}
+.step-dot.done { background: var(--blue); opacity: 0.4; border-color: var(--blue); }
+
+/* ============ Step Card ============ */
+.step-card {
+  background: var(--glass-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border-strong);
+  border-radius: var(--radius);
+  padding: 28px 20px;
+  box-shadow: var(--glass-shadow);
+  margin-bottom: 16px;
+}
+.step-card .step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.step-card h3 {
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  letter-spacing: -0.1px;
+}
+.step-card .step-content {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+.step-card .step-image {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  margin-top: 16px;
+  background: rgba(255,255,255,0.3);
+  object-fit: cover;
+  max-height: 300px;
+}
+
+.step-nav {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 24px;
+}
+.step-nav button {
+  flex: 1;
+  padding: 15px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: -0.2px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.btn-prev {
+  background: rgba(255,255,255,0.5);
+  border-color: var(--glass-border);
+  color: var(--text);
+}
+.btn-next {
+  background: var(--blue);
+  color: white;
+  box-shadow: 0 4px 15px rgba(0,122,255,0.3);
+}
+.btn-done {
+  background: var(--green);
+  color: white;
+  box-shadow: 0 4px 15px rgba(52,199,89,0.3);
+}
+.step-nav button:active { transform: scale(0.96); opacity: 0.85; }
+.step-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+.step-nav button:disabled:active { transform: none; }
+
+/* ============ Comic / Long-image Detail ============ */
+.comic-panel {
+  margin-bottom: 28px;
+}
+.comic-image {
+  width: 100%;
+  display: block;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.3);
+}
+.comic-caption {
+  padding: 14px 4px 0;
+}
+.comic-caption h3 {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  letter-spacing: -0.2px;
+}
+.comic-text {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
+/* ============ Detail Article (Scrollable) ============ */
+.detail-article {
+  padding: 0 16px 40px;
+}
+.detail-cover {
+  width: 100%;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  object-fit: cover;
+  max-height: 260px;
+  background: rgba(255,255,255,0.3);
+}
+.detail-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.3px;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.detail-desc {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* ============ Tab Bar (Glass) ============ */
+.tab-bar {
+  display: flex;
+  background: var(--glass-strong);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-top: 1px solid var(--glass-border);
+  padding: 4px 0 calc(4px + var(--safe-bottom));
+  flex-shrink: 0;
+  z-index: 100;
+  position: relative;
+}
+.tab-bar::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%, rgba(255,255,255,0.6) 20%, rgba(255,255,255,0.6) 80%, transparent 100%
+  );
+}
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 0;
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: color 0.2s;
+  color: var(--text2);
+}
+.tab-item svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tab-item span { font-size: 10px; font-weight: 500; }
+.tab-item.active { color: var(--blue); }
+
+/* ============ Empty State ============ */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+.empty-state .empty-icon {
+  font-size: 56px;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+.empty-state h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.empty-state p {
+  font-size: 15px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+/* ============ Admin Login ============ */
+.admin-login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 20px;
+  min-height: 400px;
+}
+.admin-login input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid var(--glass-border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 17px;
+  font-family: inherit;
+  background: var(--glass-card);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.admin-login input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(0,122,255,0.15);
+}
+
+/* ============ Admin Toolbar ============ */
+.admin-toolbar {
+  display: flex;
+  gap: 10px;
+  padding: 12px 0;
+  flex-wrap: wrap;
+}
+.admin-toolbar button {
+  padding: 10px 18px;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.admin-toolbar button:active { transform: scale(0.95); }
+.btn-add {
+  background: var(--blue);
+  color: white;
+  border-color: var(--blue);
+  box-shadow: 0 4px 15px rgba(0,122,255,0.25);
+}
+.btn-logout {
+  background: var(--glass-card);
+  color: var(--text);
+}
+
+/* ============ Admin Tutorial Item ============ */
+.admin-tutorial-item {
+  background: var(--glass-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--glass-shadow);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.admin-tutorial-item .info { flex:1; min-width:0; }
+.admin-tutorial-item .info h4 { font-size: 15px; font-weight: 600; margin-bottom: 2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.admin-tutorial-item .info span { font-size: 12px; color: var(--text2); }
+.admin-actions { display:flex; gap:6px; flex-shrink:0; }
+.admin-actions button {
+  width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--glass-border);
+  font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.admin-actions button:active { transform: scale(0.9); }
+.btn-edit-admin { background: rgba(0,122,255,0.15); color: var(--blue); }
+.btn-del-admin { background: rgba(255,59,48,0.12); color: var(--red); }
+
+/* ============ Editor Form ============ */
+.editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+.editor-form label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: -12px;
+}
+.editor-form input, .editor-form textarea, .editor-form select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--glass-border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 16px;
+  font-family: inherit;
+  background: var(--glass-card);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.editor-form textarea { min-height: 80px; resize: vertical; }
+.editor-form input:focus, .editor-form textarea:focus, .editor-form select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(0,122,255,0.15);
+}
+
+.step-editor {
+  background: var(--glass-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--glass-shadow);
+  position: relative;
+}
+.step-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.step-editor-header span { font-weight: 600; font-size: 15px; }
+.btn-remove-step {
+  width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--glass-border);
+  background: rgba(255,59,48,0.12); color: var(--red); font-size: 16px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.btn-add-step {
+  padding: 14px;
+  border: 2px dashed var(--glass-border-strong);
+  border-radius: var(--radius);
+  background: var(--glass-card);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--blue);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.img-upload-row {
+  display: flex; gap: 8px; align-items: center;
+}
+.img-upload-label {
+  font-size: 13px; color: var(--text2); flex-shrink: 0;
+}
+.btn-upload {
+  display: inline-block; padding: 8px 14px; border-radius: 8px;
+  background: rgba(0,122,255,0.12); color: var(--blue);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  white-space: nowrap; transition: background 0.2s;
+  border: 1px solid rgba(0,122,255,0.2);
+}
+.btn-upload:hover { background: rgba(0,122,255,0.2); }
+.btn-upload input[type="file"] { display: none; }
+.btn-add-step:active { background: rgba(0,122,255,0.1); }
+.btn-save {
+  padding: 16px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  letter-spacing: -0.2px;
+  box-shadow: 0 4px 15px rgba(0,122,255,0.3);
+}
+.btn-save:active { transform: scale(0.98); opacity: 0.85; }
+
+/* ============ Alert / Modal ============ */
+.alert-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  animation: fadeIn 0.2s ease;
+}
+.alert-box {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border-strong);
+  border-radius: 20px;
+  padding: 24px 20px;
+  width: calc(100% - 80px);
+  max-width: 320px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  animation: scaleIn 0.25s ease;
+}
+.alert-box h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+.alert-box p { font-size: 14px; color: var(--text2); margin-bottom: 20px; line-height:1.4; }
+.alert-buttons { display: flex; flex-direction: column; gap: 8px; }
+.alert-buttons button {
+  padding: 13px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.alert-buttons button:active { opacity: 0.7; }
+.alert-btn-primary { background: var(--red); color: white; }
+.alert-btn-cancel {
+  background: rgba(0,0,0,0.06);
+  color: var(--text);
+  font-weight: 400;
+}
+
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes scaleIn { from { transform:scale(0.9); opacity:0; } to { transform:scale(1); opacity:1; } }
+
+.hidden { display: none !important; }
+
+@media (min-width: 481px) {
+  #app {
+    border-left: 1px solid rgba(255,255,255,0.3);
+    border-right: 1px solid rgba(255,255,255,0.3);
+    box-shadow: 0 0 60px rgba(0,0,0,0.08);
+    background: transparent;
+  }
+  body {
+    background: linear-gradient(180deg,
+      #5B9BD5 0%,
+      #7DB9DE 15%,
+      #A8D8F0 35%,
+      #C5E4F5 55%,
+      #DEEEF9 75%,
+      #F0F6FB 100%
+    );
+  }
+}
+
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Content area -->
+  <div class="content" id="main-content"></div>
+
+  <!-- Tab Bar -->
+  <div class="tab-bar">
+    <button class="tab-item active" data-tab="admin" onclick="switchTab('admin')" style="display:none;">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>管理</span>
+    </button>
+  </div>
+</div>
+
+<!-- Alert overlay (hidden by default) -->
+<div class="alert-overlay hidden" id="alert-overlay">
+  <div class="alert-box">
+    <h3 id="alert-title"></h3>
+    <p id="alert-msg"></p>
+    <div class="alert-buttons" id="alert-buttons"></div>
+  </div>
+</div>
+
+<!-- Hidden file input for import -->
+<input type="file" id="import-file" accept=".json" onchange="importData(this)" style="display:none;">
+
+<script>
+/* ============ Data Layer ============ */
+const STORAGE_KEY = 'tutorial_app_data';
+const ADMIN_PASSWORD = '000000';
+
+const DEFAULT_CATEGORIES = [
+  { id: 'c1', name: '手机技巧', icon: '📱', color: '#E8F5FB' },
+  { id: 'c2', name: '电脑操作', icon: '💻', color: '#EBF5EC' },
+  { id: 'c3', name: '摄影修图', icon: '📷', color: '#FDF2E7' },
+  { id: 'c4', name: '办公软件', icon: '📊', color: '#EEE6FB' },
+];
+
+const DEFAULT_TUTORIALS = [
+  {
+    id: 't1', categoryId: 'c1', title: 'iPhone 截屏的 3 种方式',
+    coverImage: '', description: '学会截屏、长截屏和录屏，再也不求人。',
+    steps: [
+      { title: '普通截屏', content: '同时按下「侧边按钮」和「音量加」键，屏幕会闪烁一下，截屏就完成了。\n\n截屏图片会自动保存到「照片」App 中。', image: '' },
+      { title: '长截屏（Safari）', content: '先用普通方式截屏，然后立即点击左下角的缩略图。\n\n在编辑界面顶部选择「整页」，可以保存为 PDF 或发送给朋友。', image: '' },
+      { title: '屏幕录制', content: '打开「设置」→「控制中心」→ 添加「屏幕录制」。\n\n从右上角下滑打开控制中心，点击录制按钮（圆圈），3 秒倒计时后开始录制。再次点击停止。', image: '' },
+    ]
+  },
+  {
+    id: 't2', categoryId: 'c1', title: '一键清理通知，告别红点',
+    coverImage: '', description: '几分钟搞定消息轰炸，清爽每一天',
+    steps: [
+      { title: '关闭不重要的通知', content: '打开「设置」→「通知」，逐个点击不需要推送的 App，关闭「允许通知」开关。\n\n建议保留通讯、日历等必要的通知。', image: '' },
+      { title: '设置定时摘要', content: '在「设置」→「通知」→「定时推送摘要」中，选择你希望接收摘要的 App 和时间。\n\n系统会在指定时间一次性推送摘要，而不是实时打断你。', image: '' },
+    ]
+  },
+  {
+    id: 't3', categoryId: 'c2', title: '电脑文件整理术',
+    coverImage: '', description: '告别桌面满满的图标，高效管理你的文件',
+    steps: [
+      { title: '建立文件夹体系', content: '不要把所有文件堆在桌面。按「项目名」或「时间」建立文件夹。\n\n例如：工作 / 个人 / 学习 三大主文件夹，每个下面再细分。', image: '' },
+      { title: '命名规范', content: '使用统一命名格式：「日期_项目名_版本号」\n\n例如：20260709_教程APP_v1.0\n\n这样一眼就能识别文件内容，搜索也方便。', image: '' },
+      { title: '定期清理', content: '每个月花 10 分钟清理：\n1. 删除不再需要的文件\n2. 将完成的文件归档到「归档」文件夹\n3. 清空回收站', image: '' },
+    ]
+  },
+  {
+    id: 't4', categoryId: 'c3', title: '手机拍出好照片',
+    coverImage: '', description: '不用单反，手机也能拍大片',
+    steps: [
+      { title: '三分法构图', content: '打开相机设置中的「网格」。\n\n将被拍摄主体放在网格线的交叉点上，画面会更有层次感。', image: '' },
+      { title: '光线是关键', content: '尽量使用自然光。逆光时开启 HDR，暗光时稳住手机或使用夜景模式。\n\n黄金拍摄时间：日出后 1 小时和日落前 1 小时。', image: '' },
+    ]
+  },
+  {
+    id: 't5', categoryId: 'c4', title: 'Excel 数据透视表入门',
+    coverImage: '', description: '10 分钟学会数据透视表，工作效率翻倍',
+    steps: [
+      { title: '准备数据', content: '确保数据是规范的表格格式：\n- 第一行为列标题\n- 没有合并单元格\n- 没有空行', image: '' },
+      { title: '创建透视表', content: '选中数据区域 → 点击「插入」→「数据透视表」→ 选择放置位置 → 确定。\n\n在右侧窗格中拖拽字段到行、列、值区域即可完成分析。', image: '' },
+      { title: '常用技巧', content: '1. 右键值字段 →「值字段设置」可切换求和/计数/平均值\n2. 点击透视表 →「设计」标签可快速套用样式\n3. 使用「切片器」可以快速筛选数据', image: '' },
+    ]
+  },
+  {
+    id: 't6', categoryId: 'c4', title: 'PPT 排版三原则',
+    coverImage: '', description: '让你的幻灯片告别杂乱，变得专业好看',
+    steps: [
+      { title: '对齐', content: '选中多个元素 →「格式」→「对齐」→ 选择对齐方式。\n\n所有元素对齐后，页面看起来干净整洁、层次分明。', image: '' },
+      { title: '留白', content: '不要塞满内容！每页只放 1-2 个核心观点。\n\n适当的空白区域让观众更容易聚焦重点，专业感瞬间提升。', image: '' },
+      { title: '统一字体', content: '全篇最多使用 2 种字体。标题用粗体大号，正文用常规小号。\n\n推荐组合：思源黑体（标题）+ 思源宋体（正文）', image: '' },
+    ]
+  },
+];
+
+function getData() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  try {
+    var baked = localStorage.getItem(STORAGE_KEY + '_baked');
+    if (baked) return JSON.parse(baked);
+  } catch(e) {}
+  return { categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)), tutorials: JSON.parse(JSON.stringify(DEFAULT_TUTORIALS)) };
+}
+function saveData(data) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    return true;
+  } catch(e) {
+    showAlert('保存失败', '存储空间不足！图片 Base64 太大，请减少图片或缩小尺寸。\n当前数据大小：' + (JSON.stringify(data).length / 1024 / 1024).toFixed(2) + ' MB', [
+      {text:'确定',cls:'alert-btn-cancel',action:function(){}}
+    ]);
+    return false;
+  }
+}
+function resetData() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+/* ============ App State ============ */
+let appState = {
+
+  page: 'home',
+
+
+
+  adminAuthed: false,
+  editingTutorialId: null,
+};
+
+const contentEl = document.getElementById('main-content');
+const alertOverlay = document.getElementById('alert-overlay');
+
+/* ============ Tab Switching ============ */
+function switchTab(tab) {
+  window._es = null;
+  appState.page = 'home';
+  render();
+}
+
+/* ============ Navigation ============ */
+function goHome() { window._es = null; appState.page = 'home'; render(); }
+function goEditor(tutId) {
+  appState.page = 'editor';
+  appState.editingTutorialId = tutId;
+  render();
+}
+
+
+
+/* ============ Alert ============ */
+var _alertCallbacks = {};
+var _alertNextId = 0;
+function showAlert(title, msg, buttons) {
+  document.getElementById('alert-title').textContent = title;
+  document.getElementById('alert-msg').textContent = msg;
+  var btnsEl = document.getElementById('alert-buttons');
+  var html = '';
+  for (var i = 0; i < buttons.length; i++) {
+    var id = 'ab' + (++_alertNextId);
+    _alertCallbacks[id] = buttons[i].action;
+    html += '<button class="' + (buttons[i].cls||'') + '" onclick="var fn=_alertCallbacks[\'' + id + '\'];if(fn)fn();dismissAlert();">' + buttons[i].text + '</button>';
+  }
+  btnsEl.innerHTML = html;
+  alertOverlay.classList.remove('hidden');
+}
+function dismissAlert() {
+  alertOverlay.classList.add('hidden');
+  _alertCallbacks = {};
+  _alertNextId = 0;
+}
+
+/* ============ Render ============ */
+function render() {
+  var data = getData();
+  if (!appState.adminAuthed) { renderAdminLogin(); return; }
+  var page = appState.page;
+  if (page === 'editor') renderEditor(data);
+  else renderAdminList(data);
+  contentEl.scrollTop = 0;
+}
+
+/* ============ Admin Only ============ */
+/* ============ Admin: Login ============ */
+function renderAdminLogin() {
+  contentEl.innerHTML = `
+    <div class="page-title">管理后台</div>
+    <div class="page-subtitle">需要密码才能进入</div>
+    <div class="admin-login">
+      <input type="password" id="admin-pwd" placeholder="请输入管理密码" autocomplete="off">
+      <button class="btn-save" onclick="adminLogin()" style="width:100%;">登录</button>
+      <p style="font-size:12px;color:var(--text3);">默认密码: 000000</p>
+    </div>
+  `;
+  setTimeout(() => {
+    const inp = document.getElementById('admin-pwd');
+    if (inp) {
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
+      inp.focus();
+    }
+  }, 100);
+}
+
+function adminLogin() {
+  const pwd = document.getElementById('admin-pwd').value;
+  if (pwd === ADMIN_PASSWORD) {
+    appState.adminAuthed = true;
+    appState.page = 'home';
+    render();
+  } else {
+    showAlert('密码错误', '请重试', [{text:'确定',cls:'alert-btn-cancel',action:()=>{}}]);
+  }
+}
+
+/* ============ Admin: List ============ */
+function renderAdminList(data) {
+  const tuts = data.tutorials;
+  const cats = data.categories;
+
+  function getCatName(catId) {
+    const c = cats.find(x => x.id === catId);
+    return c ? c.icon + ' ' + c.name : '未分类';
+  }
+
+  let listHtml = tuts.map(t => `
+    <div class="admin-tutorial-item">
+      <div class="info">
+        <h4>${t.title}</h4>
+        <span>${getCatName(t.categoryId)} · ${t.steps.length} 步骤</span>
+      </div>
+      <div class="admin-actions">
+        <button class="btn-edit-admin" onclick="goEditor('${t.id}')" title="编辑">✎</button>
+        <button class="btn-del-admin" onclick="confirmDelete('${t.id}')" title="删除">🗑</button>
+      </div>
+    </div>
+  `).join('');
+
+  if (tuts.length === 0) {
+    listHtml = `<div class="empty-state"><div class="empty-icon">📝</div><h3>还没有教程</h3><p>点击下方按钮创建你的第一篇教程</p></div>`;
+  }
+
+  contentEl.innerHTML = `
+    <div class="nav-bar">
+      <span class="nav-title">教程管理</span>
+      <div style="width:44px;"></div>
+    </div>
+    <div class="admin-toolbar">
+      <button class="btn-add" onclick="goEditor(null)">+ 新建教程</button>
+      <button class="btn-logout" onclick="exportData()">📥 导出</button>
+      <button class="btn-logout" onclick="document.getElementById('import-file').click()">📤 导入</button>
+      <button class="btn-logout" onclick="adminLogout()">退出</button>
+      <button class="btn-logout" onclick="resetAllData()" style="color:var(--red);">重置</button>
+    </div>
+    <div>${listHtml}</div>
+  `;
+}
+
+function adminLogout() {
+  appState.adminAuthed = false;
+  appState.page = 'home';
+  appState.tab = 'client';
+  document.querySelectorAll('.tab-item').forEach(el => el.classList.toggle('active', el.dataset.tab === 'client'));
+  render();
+}
+
+function resetAllData() {
+  showAlert('重置数据', '将删除所有自定义教程，恢复为默认示例数据。确定吗？', [
+    {text:'取消',cls:'alert-btn-cancel',action:()=>{}},
+    {text:'重置',cls:'alert-btn-primary',action:()=>{resetData();adminLogout();}}
+  ]);
+}
+
+function exportData() {
+  var data = getData();
+  var json = JSON.stringify(data, null, 2);
+  var blob = new Blob([json], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'tutorial-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importData(input) {
+  if (!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var imported = JSON.parse(e.target.result);
+      if (!imported.tutorials || !imported.categories) {
+        throw new Error('bad format');
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(imported));
+      render();
+      showAlert('导入成功', '已导入 ' + imported.tutorials.length + ' 篇教程。', [
+        {text:'确定',cls:'alert-btn-cancel',action:function(){}}
+      ]);
+    } catch(err) {
+      showAlert('导入失败', '文件格式不正确，请用之前导出的备份文件。', [
+        {text:'确定',cls:'alert-btn-cancel',action:function(){}}
+      ]);
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function confirmDelete(tutId) {
+  showAlert('删除教程', '删除后无法恢复，确定要删除这篇教程吗？', [
+    {text:'取消',cls:'alert-btn-cancel',action:()=>{}},
+    {text:'删除',cls:'alert-btn-primary',action:()=>{deleteTutorial(tutId)}}
+  ]);
+}
+
+function deleteTutorial(tutId) {
+  const data = getData();
+  data.tutorials = data.tutorials.filter(t => t.id !== tutId);
+  saveData(data);
+  render();
+}
+
+/* ============ Admin: Editor ============ */
+function initEditorState(data) {
+  const editingId = appState.editingTutorialId;
+  const existing = editingId ? data.tutorials.find(t => t.id === editingId) : null;
+  const cats = data.categories;
+  window._es = {
+    editingId: editingId || '',
+    title: existing ? existing.title : '',
+    categoryId: existing ? existing.categoryId : (cats[0] ? cats[0].id : ''),
+    description: existing ? existing.description : '',
+    coverImage: existing ? (existing.coverImage || '') : '',
+    steps: existing ? JSON.parse(JSON.stringify(existing.steps)) : [{ title: '', content: '', image: '' }]
+  };
+}
+
+function syncEditorState() {
+  var es = window._es;
+  if (!es) return;
+  var t = document.getElementById('edit-title');
+  var c = document.getElementById('edit-category');
+  var d = document.getElementById('edit-desc');
+  var cv = document.getElementById('edit-cover');
+  if (t) es.title = t.value;
+  if (c) es.categoryId = c.value;
+  if (d) es.description = d.value;
+  if (cv) es.coverImage = cv.value;
+}
+
+function fileToBase64(file, callback) {
+  var r = new FileReader();
+  r.onload = function(e) { callback(e.target.result); };
+  r.readAsDataURL(file);
+}
+
+function handleStepImage(idx, input) {
+  if (!input.files || !input.files[0]) return;
+  var f = input.files[0];
+  if (f.size > 5 * 1024 * 1024) { showAlert('提示','图片不能超过5MB',[{text:'确定',cls:'alert-btn-cancel',action:function(){}}]); return; }
+  fileToBase64(f, function(b64) {
+    if (window._es && window._es.steps[idx]) {
+      window._es.steps[idx].image = b64;
+    }
+    refreshStepImgPreview(idx);
+  });
+}
+function removeStepImage(idx) {
+  if (window._es && window._es.steps[idx]) {
+    window._es.steps[idx].image = '';
+  }
+  refreshStepImgPreview(idx);
+}
+function refreshStepImgPreview(idx) {
+  var preview = document.getElementById('step-preview-' + idx);
+  var urlInput = document.getElementById('step-img-url-' + idx);
+  if (!preview) return;
+  var img = (window._es && window._es.steps[idx]) ? (window._es.steps[idx].image || '') : '';
+  if (img) {
+    preview.innerHTML = '<div style="position:relative;display:inline-block;margin-top:8px;"><img src="' + img + '" style="max-width:100%;max-height:200px;border-radius:12px;"><button onclick="removeStepImage(' + idx + ')" style="position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:14px;border:none;background:rgba(0,0,0,0.6);color:#fff;font-size:14px;cursor:pointer;line-height:28px;text-align:center;">&times;</button></div>';
+  } else {
+    preview.innerHTML = '';
+  }
+  if (urlInput) urlInput.value = img;
+}
+
+function handleCoverImage(input) {
+  if (!input.files || !input.files[0]) return;
+  var f = input.files[0];
+  if (f.size > 5 * 1024 * 1024) { showAlert('提示','图片不能超过5MB',[{text:'确定',cls:'alert-btn-cancel',action:function(){}}]); return; }
+  fileToBase64(f, function(b64) {
+    if (window._es) window._es.coverImage = b64;
+    refreshCoverPreview();
+  });
+}
+function removeCoverImage() {
+  if (window._es) window._es.coverImage = '';
+  refreshCoverPreview();
+}
+function refreshCoverPreview() {
+  var preview = document.getElementById('cover-preview');
+  var urlInput = document.getElementById('edit-cover');
+  if (!preview) return;
+  var img = window._es ? (window._es.coverImage || '') : '';
+  if (img) {
+    preview.innerHTML = '<div style="position:relative;display:inline-block;margin-top:6px;"><img src="' + img + '" style="max-width:100%;max-height:120px;border-radius:12px;"><button onclick="removeCoverImage()" style="position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:14px;border:none;background:rgba(0,0,0,0.6);color:#fff;font-size:14px;cursor:pointer;line-height:28px;text-align:center;">&times;</button></div>';
+  } else {
+    preview.innerHTML = '';
+  }
+  if (urlInput) urlInput.value = img;
+}
+
+function renderEditor(data) {
+  if (!window._es) initEditorState(data);
+  var es = window._es;
+  var cats = data.categories;
+  var catOptions = cats.map(function(c) {
+    return '<option value="' + c.id + '"' + (c.id === es.categoryId ? ' selected' : '') + '>' + c.icon + ' ' + c.name + '</option>';
+  }).join('');
+
+  var stepsHtml = '';
+  for (var i = 0; i < es.steps.length; i++) {
+    var s = es.steps[i];
+    var rmBtn = es.steps.length > 1 ? '<button class="btn-remove-step" onclick="removeStep(' + i + ')">X</button>' : '';
+    stepsHtml += '<div class="step-editor"><div class="step-editor-header"><span>步骤 ' + (i + 1) + '</span>' + rmBtn + '</div><div class="editor-form">';
+    stepsHtml += '<input type="text" placeholder="步骤标题" value="' + escapeHtml(s.title) + '" oninput="window._es.steps[' + i + '].title=this.value">';
+    stepsHtml += '<textarea placeholder="步骤正文内容..." oninput="window._es.steps[' + i + '].content=this.value">' + s.content + '</textarea>';
+    stepsHtml += '<div class="img-upload-row"><span class="img-upload-label">图片（可选）</span>';
+    stepsHtml += '<label class="btn-upload"><input type="file" accept="image/*" onchange="handleStepImage(' + i + ',this)" style="display:none;">选择图片</label>';
+    stepsHtml += '<input type="text" id="step-img-url-' + i + '" placeholder="或粘贴图片链接" value="' + escapeHtml(s.image || '') + '" oninput="window._es.steps[' + i + '].image=this.value;refreshStepImgPreview(' + i + ')" style="flex:1;">';
+    stepsHtml += '</div><div id="step-preview-' + i + '"></div>';
+    stepsHtml += '</div></div>';
+  }
+
+  var coverPreviewHtml = '<div id="cover-preview"></div>';
+
+  contentEl.innerHTML = '<div class="nav-bar"><button class="nav-btn" onclick="window._es=null;appState.page=\'home\';render();"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button><span class="nav-title">' + (es.editingId ? '编辑教程' : '新建教程') + '</span><div style="width:44px;"></div></div><div class="editor-form" id="editor-form">';
+  contentEl.innerHTML += '<label>教程标题</label><input type="text" id="edit-title" placeholder="教程标题" value="' + escapeHtml(es.title) + '" oninput="window._es.title=this.value">';
+  contentEl.innerHTML += '<label>所属分类</label><select id="edit-category" onchange="window._es.categoryId=this.value">' + catOptions + '</select>';
+  contentEl.innerHTML += '<label>简介</label><textarea id="edit-desc" placeholder="一句话描述这篇教程的内容" oninput="window._es.description=this.value">' + es.description + '</textarea>';
+  contentEl.innerHTML += '<label>封面图片（可选）</label><div class="img-upload-row"><label class="btn-upload"><input type="file" accept="image/*" onchange="handleCoverImage(this)" style="display:none;">本地上传</label><input type="text" id="edit-cover" placeholder="或粘贴图片链接" value="' + escapeHtml(es.coverImage) + '" oninput="window._es.coverImage=this.value" style="flex:1;"></div>' + coverPreviewHtml;
+  contentEl.innerHTML += '<label>步骤</label><div id="steps-container">' + stepsHtml + '</div>';
+  contentEl.innerHTML += '<button class="btn-add-step" onclick="addStep()">+ 添加步骤</button>';
+  contentEl.innerHTML += '<button class="btn-save" onclick="saveTutorial()">' + (es.editingId ? '保存修改' : '发布教程') + '</button></div>';
+
+  setTimeout(function() {
+    var el = document.getElementById('edit-category');
+    if (el && el.value !== es.categoryId) el.value = es.categoryId;
+    // Refresh all image previews
+    for (var j = 0; j < es.steps.length; j++) {
+      refreshStepImgPreview(j);
+    }
+    refreshCoverPreview();
+  }, 50);
+}
+
+function escapeHtml(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function removeStep(idx) {
+  syncEditorState();
+  if (window._es && window._es.steps.length > 1) {
+    window._es.steps.splice(idx, 1);
+    appState.page = 'editor';
+    render();
+  }
+}
+
+function addStep() {
+  syncEditorState();
+  if (window._es) {
+    window._es.steps.push({ title: '', content: '', image: '' });
+    appState.page = 'editor';
+    render();
+  }
+}
+
+function saveTutorial() {
+  syncEditorState();
+  var es = window._es;
+  if (!es) return;
+  var title = es.title.trim();
+  var categoryId = es.categoryId;
+  var description = es.description.trim();
+  var coverImage = (es.coverImage || '').trim();
+  var steps = es.steps.filter(function(s) { return s.title.trim() || s.content.trim(); });
+
+  if (!title) { showAlert('提示','请输入教程标题',[{text:'确定',cls:'alert-btn-cancel',action:function(){}}]); return; }
+  if (!categoryId) { showAlert('提示','请选择分类',[{text:'确定',cls:'alert-btn-cancel',action:function(){}}]); return; }
+  if (steps.length === 0) { showAlert('提示','至少需要一个步骤',[{text:'确定',cls:'alert-btn-cancel',action:function(){}}]); return; }
+
+  var data = getData();
+  var tutData = {
+    id: es.editingId || ('t' + Date.now()),
+    title: title,
+    categoryId: categoryId,
+    description: description || title,
+    coverImage: coverImage,
+    steps: steps.map(function(s) { return { title: s.title.trim(), content: s.content.trim(), image: (s.image||'').trim() }; })
+  };
+
+  if (es.editingId) {
+    var idx = data.tutorials.findIndex(function(t) { return t.id === es.editingId; });
+    if (idx >= 0) data.tutorials[idx] = tutData;
+  } else {
+    data.tutorials.unshift(tutData);
+  }
+
+  if (!saveData(data)) return;
+  window._es = null;
+  appState.page = 'home';
+  render();
+}
+
+/* ============ Init ============ */
+function init() {
+  fetch('data.json')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      localStorage.setItem(STORAGE_KEY + '_baked', JSON.stringify(data));
+      if (!localStorage.getItem(STORAGE_KEY)) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }
+    })
+    .catch(function() {})
+    .finally(function() { render(); });
+}
+init();
+</script>
+</body>
+</html>
