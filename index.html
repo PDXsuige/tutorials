@@ -827,16 +827,16 @@ const DEFAULT_TUTORIALS = [
   },
 ];
 
+// In-memory data cache — avoid multiple localStorage reads
+var _dataCache = null;
 function getData() {
+  if (_dataCache) return _dataCache;
   try {
     var raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) { _dataCache = JSON.parse(raw); return _dataCache; }
   } catch(e) {}
-  try {
-    var baked = localStorage.getItem(STORAGE_KEY + '_baked');
-    if (baked) return JSON.parse(baked);
-  } catch(e) {}
-  return { categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)), tutorials: JSON.parse(JSON.stringify(DEFAULT_TUTORIALS)) };
+  _dataCache = { categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)), tutorials: JSON.parse(JSON.stringify(DEFAULT_TUTORIALS)) };
+  return _dataCache;
 }
 function saveData(data) {
   try {
@@ -1035,17 +1035,49 @@ function renderDetail(data) {
     '</div>';
 }
 
+/* ============ Loading Screen ============ */
+function showLoading(msg) {
+  contentEl.innerHTML =
+    '<div class="empty-state" style="padding-top:120px;">' +
+      '<div class="empty-icon">⏳</div>' +
+      '<h3>加载中...</h3>' +
+      '<p>' + (msg || '正在获取教程数据') + '</p>' +
+    '</div>';
+}
+
 /* ============ Init ============ */
 function init() {
-  fetch('data.json')
-    .then(function(r) { return r.json(); })
+  showLoading('正在加载教程数据...');
+
+  // Try to load data.json from network first
+  var controller = new AbortController();
+  var timeoutId = setTimeout(function() { controller.abort(); }, 15000);
+
+  fetch('data.json', { signal: controller.signal, cache: 'default' })
+    .then(function(r) {
+      clearTimeout(timeoutId);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
     .then(function(data) {
-      localStorage.setItem(STORAGE_KEY + '_baked', JSON.stringify(data));
-      if (!localStorage.getItem(STORAGE_KEY)) {
+      // Store in memory and localStorage (only once, no duplicate)
+      _dataCache = data;
+      try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch(e) {
+        // localStorage full — data in memory still works
+        console.warn('localStorage full, using memory cache only');
       }
     })
-    .catch(function() {})
+    .catch(function(err) {
+      clearTimeout(timeoutId);
+      console.warn('data.json load failed:', err.message || err);
+      // Fall back to localStorage if available
+      if (!localStorage.getItem(STORAGE_KEY)) {
+        showLoading('首次加载需要网络连接，请确保网络正常后刷新页面。');
+        return;
+      }
+    })
     .finally(function() { render(); });
 }
 init();
